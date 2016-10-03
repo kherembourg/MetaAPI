@@ -12,6 +12,9 @@ import okhttp3.ResponseBody
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
+import rx.Subscriber
+import rx.android.schedulers.AndroidSchedulers
+import rx.schedulers.Schedulers
 import timber.log.Timber
 
 class MainActivity : AppCompatActivity() {
@@ -38,19 +41,24 @@ class MainActivity : AppCompatActivity() {
         val params = SMParams(lat = 48.855800f, lng = 2.358570f)
         val geo = SMObject("SMGeo", params, listOf(cinema))
 
-        val call = apiService.postData(geo)
-        call.enqueue(object : Callback<ResponseBody> {
-            override fun onResponse(call: Call<ResponseBody>?, response: Response<ResponseBody>?) {
-                val result = response?.body()?.string()
-                Timber.tag("Response").d(result)
-                textView.text = result
-            }
+        apiService.postData(geo)
+                    .subscribeOn(Schedulers.io())
+                    .observeOn(AndroidSchedulers.mainThread())
+                    .subscribe(object : Subscriber<ResponseBody>() {
+                        override fun onNext(response: ResponseBody?) {
+                            val result = response?.string()
+                            Timber.tag("Response").d(result)
+                            textView.text = result
+                        }
 
-            override fun onFailure(call: Call<ResponseBody>?, t: Throwable?) {
-                Timber.tag("Response").e(t, "WTF")
-            }
+                        override fun onError(e: Throwable?) {
+                            Timber.tag("Response").e(e, "WTF")
+                        }
 
-        })
+                        override fun onCompleted() {
+                            Timber.tag("Response").d("Done")
+                        }
+                    })
     }
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {

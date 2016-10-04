@@ -2,22 +2,29 @@ package net.apigator.metaapi
 
 import android.os.Bundle
 import android.support.design.widget.FloatingActionButton
+import android.support.v7.app.AlertDialog
 import android.support.v7.app.AppCompatActivity
-import android.support.v7.widget.Toolbar
 import android.view.Menu
 import android.view.MenuItem
+import android.view.View
+import android.view.ViewGroup
+import android.view.inputmethod.EditorInfo
+import android.widget.TextView
+import android.widget.Toast
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.content_main.*
+import kotlinx.android.synthetic.main.node_geo.view.*
 import okhttp3.ResponseBody
-import retrofit2.Call
-import retrofit2.Callback
-import retrofit2.Response
 import rx.Subscriber
 import rx.android.schedulers.AndroidSchedulers
 import rx.schedulers.Schedulers
 import timber.log.Timber
 
-class MainActivity : AppCompatActivity() {
+class MainActivity : AppCompatActivity(), GeoDialog.GeoDialogListener {
+
+    var mGeo: SMObject? = null
+    var mPlace: SMObject? = null
+    var mCinema: SMObject? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -25,11 +32,44 @@ class MainActivity : AppCompatActivity() {
         setSupportActionBar(toolbar)
 
         val fab = findViewById(R.id.fab) as FloatingActionButton
-        fab.setOnClickListener { view -> sendRequest() }
+        fab.setOnClickListener { view -> selectNode() }
+    }
 
-        val data : String = "{\"name\":\"SMGeo\",\"params\":{\"lat\":\"48.855800\",\"lng\":\"2.358570\"}," +
-                "\"children\":[{\"name\":\"SMCinema\"," +
-                "\"children\":[{\"name\":\"SMMovie\",\"filters\":[{\"name\":\"genres\",\"value\":\"Action\",\"comparator\":\"in\"}]}]}]}"
+    private fun selectNode() {
+        if (mGeo == null && mPlace == null) {
+            displayDialog(listOf("Geo", "Place"))
+        } else if (mGeo != null && mCinema == null && mPlace == null) {
+            displayDialog(listOf("Place", "Cinema"))
+        } else if (mCinema != null) {
+            displayDialog(listOf("Movie"))
+        }
+    }
+
+    private fun displayDialog(nodes: List<String>) {
+        val builder = AlertDialog.Builder(this)
+        builder.setTitle("Choose your node").setItems(nodes.toTypedArray()) { dialog, which ->
+            when (nodes[which]) {
+                "Geo" -> openGeoDialog()
+                "Place" -> openPlaceDialog()
+                "Cinema" -> onCinemaNodeCreated()
+                "Movie" -> openMovieDialog()
+            }
+        }
+        val dialog = builder.create()
+        dialog.show()
+    }
+
+    private fun openMovieDialog() {
+        Toast.makeText(this, "Coming soon", Toast.LENGTH_LONG).show()
+    }
+
+    private fun openPlaceDialog() {
+        Toast.makeText(this, "Coming soon", Toast.LENGTH_LONG).show()
+    }
+
+    private fun openGeoDialog() {
+        val dialog = GeoDialog()
+        dialog.show(supportFragmentManager, "GeoDialog")
     }
 
     private fun sendRequest() {
@@ -59,6 +99,26 @@ class MainActivity : AppCompatActivity() {
                             Timber.tag("Response").d("Done")
                         }
                     })
+    }
+
+    override fun onGeoNodeCreated(geo: SMObject) {
+        mGeo = geo
+
+        val geoView = layoutInflater.inflate(R.layout.node_geo, nodes_layout, false) as ViewGroup
+        geoView.editLatitude.setText(geo.params?.lat.toString())
+        geoView.editLatitude.inputType = EditorInfo.TYPE_NULL
+        geoView.editLongitude.setText(geo.params?.lng.toString())
+        geoView.editLongitude.inputType = EditorInfo.TYPE_NULL
+        geoView.buttonPosition.visibility = View.GONE
+        nodes_layout.addView(geoView)
+    }
+
+    private fun onCinemaNodeCreated() {
+        mCinema = SMObject("SMCinema")
+
+        val textView = TextView(this)
+        textView.setText("SMCinema\nWe'll look for cinemas")
+        nodes_layout.addView(textView)
     }
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {

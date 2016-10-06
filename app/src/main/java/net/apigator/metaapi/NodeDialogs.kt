@@ -49,7 +49,7 @@ class GeoDialog : DialogFragment() {
     }
 
     private fun constructGeoObject(latitude: String, longitude: String) {
-        val geo = SMObject("Geo", SMParams(lat = latitude.toFloat(), lng = longitude.toFloat()))
+        val geo = SMObject("SMGeo", SMParams(lat = latitude.toFloat(), lng = longitude.toFloat()))
         callback?.onGeoNodeCreated(geo)
     }
 

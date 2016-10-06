@@ -1,9 +1,11 @@
 package net.apigator.metaapi
 
+import android.content.Intent
 import android.os.Bundle
 import android.support.design.widget.FloatingActionButton
 import android.support.v7.app.AlertDialog
 import android.support.v7.app.AppCompatActivity
+import android.text.Html
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
@@ -14,7 +16,6 @@ import android.widget.Toast
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.content_main.*
 import kotlinx.android.synthetic.main.node_geo.view.*
-import okhttp3.ResponseBody
 import rx.Subscriber
 import rx.android.schedulers.AndroidSchedulers
 import rx.schedulers.Schedulers
@@ -33,6 +34,8 @@ class MainActivity : AppCompatActivity(), GeoDialog.GeoDialogListener {
 
         val fab = findViewById(R.id.fab) as FloatingActionButton
         fab.setOnClickListener { view -> selectNode() }
+
+        buttonRequest.setOnClickListener { sendRequest() }
     }
 
     private fun selectNode() {
@@ -81,14 +84,21 @@ class MainActivity : AppCompatActivity(), GeoDialog.GeoDialogListener {
         val params = SMParams(lat = 48.855800f, lng = 2.358570f)
         val geo = SMObject("SMGeo", params, listOf(cinema))
 
-        apiService.postData(geo)
+        if (mCinema != null) {
+            mCinema?.children = listOf(movie)
+            mGeo!!.children = listOf(mCinema!!)
+        }
+
+        apiService.postData(mGeo!!)
                     .subscribeOn(Schedulers.io())
                     .observeOn(AndroidSchedulers.mainThread())
-                    .subscribe(object : Subscriber<ResponseBody>() {
-                        override fun onNext(response: ResponseBody?) {
-                            val result = response?.string()
-                            Timber.tag("Response").d(result)
-                            textView.text = result
+                .subscribe(object : Subscriber<Result>() {
+                    override fun onNext(response: Result?) {
+                        //val result = Gson().fromJson(response?.string(), Result::class.java)
+                        Timber.tag("Response").d(response.toString())
+                        val intent = Intent(applicationContext, CinemaActivity::class.java)
+                        intent.putExtra("response", response?.result)
+                        startActivity(intent)
                         }
 
                         override fun onError(e: Throwable?) {
@@ -111,13 +121,15 @@ class MainActivity : AppCompatActivity(), GeoDialog.GeoDialogListener {
         geoView.editLongitude.inputType = EditorInfo.TYPE_NULL
         geoView.buttonPosition.visibility = View.GONE
         nodes_layout.addView(geoView)
+
+        buttonRequest.isEnabled = true
     }
 
     private fun onCinemaNodeCreated() {
         mCinema = SMObject("SMCinema")
 
         val textView = TextView(this)
-        textView.setText("SMCinema\nWe'll look for cinemas")
+        textView.text = Html.fromHtml("<strong><SMCinema</strong><p>We'll look for cinemas</p>")
         nodes_layout.addView(textView)
     }
 

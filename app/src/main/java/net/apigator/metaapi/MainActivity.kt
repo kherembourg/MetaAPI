@@ -85,30 +85,32 @@ class MainActivity : AppCompatActivity(), GeoDialog.GeoDialogListener {
         val geo = SMObject("SMGeo", params, listOf(cinema))
 
         if (mCinema != null) {
-            mCinema?.children = listOf(movie)
+            mCinema?.children = listOf(SMObject("SMMovie"))
             mGeo!!.children = listOf(mCinema!!)
         }
 
         apiService.postData(mGeo!!)
                     .subscribeOn(Schedulers.io())
                     .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(object : Subscriber<Result>() {
-                    override fun onNext(response: Result?) {
-                        //val result = Gson().fromJson(response?.string(), Result::class.java)
-                        Timber.tag("Response").d(response.toString())
-                        val intent = Intent(applicationContext, CinemaActivity::class.java)
-                        intent.putExtra("response", response?.result)
-                        startActivity(intent)
-                        }
+                    .subscribe(object : Subscriber<Result>() {
+                        override fun onNext(response: Result?) {
+                                val intent = Intent(applicationContext, CinemaActivity::class.java)
+                                intent.putExtra("response", response?.result)
+                                startActivity(intent)
+                            }
 
-                        override fun onError(e: Throwable?) {
-                            Timber.tag("Response").e(e, "WTF")
-                        }
+                            override fun onError(e: Throwable?) {
+                                Timber.tag("Response").e(e, "WTF")
+                                buttonRequest.isEnabled = true
+                            }
 
-                        override fun onCompleted() {
-                            Timber.tag("Response").d("Done")
-                        }
-                    })
+                            override fun onCompleted() {
+                                Timber.tag("Response").d("Done")
+                                buttonRequest.isEnabled = true
+                            }
+                        })
+
+        buttonRequest.isEnabled = false
     }
 
     override fun onGeoNodeCreated(geo: SMObject) {
@@ -129,7 +131,7 @@ class MainActivity : AppCompatActivity(), GeoDialog.GeoDialogListener {
         mCinema = SMObject("SMCinema")
 
         val textView = TextView(this)
-        textView.text = Html.fromHtml("<strong><SMCinema</strong><p>We'll look for cinemas</p>")
+        textView.text = Html.fromHtml("<p></p><p></p><strong>SMCinema</strong><p>We'll look for cinemas</p>")
         nodes_layout.addView(textView)
     }
 

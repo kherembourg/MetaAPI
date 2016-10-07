@@ -13,33 +13,6 @@ data class SMParams(val lat: Float, val lng: Float)
 
 data class SMFilters(val name: String, val value: String, val comparator: String)
 
-/**
-"nodeName": "SMMovie",
-"apiSource": "TMDB",
-"overview": "L’industriel Bartholomew Bogue règne en maître sur la petite ville de Rose Creek. Pour mettre fin au despotisme de l’homme d’affaires, les habitants, désespérés, engagent sept hors-la-loi, chasseurs de primes, joueurs et tueurs à gages – Sam Chisolm, Josh Farraday, Goodnight Robicheaux, Jack Horne, Billy Rocks, Vasquez, et Red Harvest. Alors qu’ils se préparent pour ce qui s’annonce comme une confrontation sans pitié, ces sept mercenaires prennent conscience qu’ils se battent pour bien autre chose que l’argent…",
-"original_title": "The Magnificent Seven",
-"backdrop": "http://image.tmdb.org/t/p/w300/g54J9MnNLe7WJYVIvdWTeTIygAH.jpg",
-"genres": [
-"Action",
-"Aventure",
-"Western"
-],
-"popularity": 30.872434616088867,
-"rating": "4.6",
-
-"showtimes": [
-"09:20",
-"14:45",
-"17:15",
-"22:15",
-"11:50",
-"19:45"
-],
-"title": "Les Sept Mercenaires",
-"poster": "http://image.tmdb.org/t/p/w185/wFK9Bpmpc6lDcHY8dlbMpMqtmpE.jpg"
-
- **/
-
 data class Result(var result: ResponseNode?)
 
 data class ResponseNode(var node: Node, var children: List<ResponseNode>?) : Parcelable {
@@ -63,7 +36,7 @@ data class ResponseNode(var node: Node, var children: List<ResponseNode>?) : Par
 
 data class Node(var nodeName: String, var lat: Double, var lng: Double, var apiSource: String?, var overview: String?,
                 var original_title: String?, var backdrop: String?, var genres: List<String>?, var popularity: Double, var rating: String?,
-                var showtimes: List<String>?, var title: String?, var poster: String?) : Parcelable {
+                var showtimes: List<String>?, var title: String?, var poster: String?, var address: String?, var name: String?) : Parcelable {
 
     companion object {
         @JvmField val CREATOR: Parcelable.Creator<Node> = object : Parcelable.Creator<Node> {
@@ -74,7 +47,8 @@ data class Node(var nodeName: String, var lat: Double, var lng: Double, var apiS
 
     constructor(source: Parcel) : this(source.readString(), source.readDouble(), source.readDouble(), source.readString(),
             source.readString(), source.readString(), source.readString(), ArrayList<String>().apply { source.readList(this, String::class.java.classLoader) },
-            source.readDouble(), source.readString(), ArrayList<String>().apply { source.readList(this, String::class.java.classLoader) }, source.readString(), source.readString())
+            source.readDouble(), source.readString(), ArrayList<String>().apply { source.readList(this, String::class.java.classLoader) }, source.readString(),
+            source.readString(), source.readString(), source.readString())
 
     override fun describeContents() = 0
 
@@ -92,5 +66,7 @@ data class Node(var nodeName: String, var lat: Double, var lng: Double, var apiS
         dest?.writeList(showtimes)
         dest?.writeString(title)
         dest?.writeString(poster)
+        dest?.writeString(address)
+        dest?.writeString(name)
     }
 }

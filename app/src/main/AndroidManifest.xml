@@ -47,6 +47,7 @@
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="net.apigator.metaapi.MainActivity" />
         </activity>
+        <activity android:name=".MovieListActivity"></activity>
     </application>
 
 </manifest>

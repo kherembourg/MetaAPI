@@ -2,8 +2,6 @@ package net.apigator.metaapi
 
 import android.app.Application
 import android.webkit.WebView
-import com.facebook.stetho.Stetho
-import com.facebook.stetho.okhttp3.StethoInterceptor
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Retrofit
@@ -24,7 +22,6 @@ class App : Application() {
 
         val okHttp = OkHttpClient.Builder()
         okHttp.addInterceptor(logging)
-        okHttp.addNetworkInterceptor(StethoInterceptor())
         okHttp.connectTimeout(30, TimeUnit.SECONDS)
         okHttp.readTimeout(30, TimeUnit.SECONDS)
 
@@ -38,8 +35,6 @@ class App : Application() {
         Timber.plant(Timber.DebugTree())
 
         WebView.setWebContentsDebuggingEnabled(true)
-
-        Stetho.initializeWithDefaults(this)
     }
 
 }

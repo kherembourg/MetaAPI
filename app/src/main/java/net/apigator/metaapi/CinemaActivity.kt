@@ -4,7 +4,6 @@ import android.content.Intent
 import android.location.Geocoder
 import android.os.Bundle
 import android.support.v7.app.AppCompatActivity
-import android.widget.Toast
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.OnMapReadyCallback
@@ -52,7 +51,6 @@ class CinemaActivity : AppCompatActivity(), OnMapReadyCallback {
             }
         }
 
-        // Add a marker in Sydney and move the camera
         val myPosition = LatLng(48.855800, 2.358570)
         mMap!!.moveCamera(CameraUpdateFactory.newLatLngZoom(myPosition, 13f))
         mMap!!.setOnInfoWindowClickListener {

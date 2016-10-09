@@ -5,7 +5,7 @@ apply plugin: 'com.getkeepsafe.dexcount'
 
 android {
     compileSdkVersion 24
-    buildToolsVersion "24.0.2"
+    buildToolsVersion "24.0.3"
     defaultConfig {
         applicationId "net.apigator.metaapi"
         minSdkVersion 19
@@ -68,6 +68,7 @@ dependencies {
     compile 'io.reactivex:rxjava:1.2.0'
     compile 'com.android.support.constraint:constraint-layout:1.0.0-alpha9'
     compile 'com.google.android.gms:play-services-maps:9.6.1'
+    compile 'com.google.android.gms:play-services-location:9.6.1'
     testCompile 'junit:junit:4.12'
 }
 repositories {
